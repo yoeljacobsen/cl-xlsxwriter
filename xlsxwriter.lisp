@@ -66,6 +66,23 @@
 (defcfun "workbook_close" lxw-error
   (workbook :pointer))
 
+;;; Helper functions
+
+(let ((current-row 0)
+      (current-col 0))
+  (defun worksheet-write (worksheet value &keys row col format)
+    "Add a value to the worksheet. If row/col are not provided, add to the left"
+    (let ((actual-row (if row row current-row))
+          (actual-col (if col col current-col))
+          (actual-format (if format format (null-pointer))))
+      (cond ((stringp value)
+             (worksheet-write-string worksheet actual-row actual-col value actual-format))
+            ((numberp value)
+             (worksheet-write-number worksheet actual-row actual-col (coerce value 'double-float) actual-format))
+        (t "Unsupported value type"))
+      (setf current-row actual-row)
+      (setf current-col (1+ actual-col)))))
+
 ;;; Examples
 
 (defun lxw-example (filename)
@@ -73,4 +90,11 @@
          (worksheet (workbook-add-worksheet workbook "sheet1")))
     (worksheet-write-string worksheet 10 10 "Hello world" (null-pointer))
     (worksheet-write-number worksheet 11 10 42d0 (null-pointer))
+    (workbook-close workbook)))
+
+(defun test-helper (filename)
+  (let* ((workbook (workbook-new filename))
+         (worksheet (workbook-add-worksheet workbook "sheet1")))
+    (loop for val in '(1 "two" 3.0 "four" 5/6 "six")
+          do (worksheet-write worksheet val))
     (workbook-close workbook)))
