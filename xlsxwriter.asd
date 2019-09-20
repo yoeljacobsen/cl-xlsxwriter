@@ -7,5 +7,6 @@
   :serial t
   :depends-on (:cffi)
   :components ((:file "package")
-               (:file "xlsxwriter")))
+               (:file "xlsxwriter")
+               (:file "export")))
 

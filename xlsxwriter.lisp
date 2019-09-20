@@ -140,6 +140,7 @@
   (format lxw-format))
 
 (defcfun "worksheet_set_column" lxw-error
+  (worksheet lxw-worksheet)
   (first-col lxw-col)
   (last-col lxw-col)
   (width :double)
