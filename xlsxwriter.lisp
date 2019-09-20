@@ -70,7 +70,7 @@
 
 (let ((current-row 0)
       (current-col 0))
-  (defun worksheet-write (worksheet value &keys row col format)
+  (defun worksheet-write (worksheet value &key row col format)
     "Add a value to the worksheet. If row/col are not provided, add to the left"
     (let ((actual-row (if row row current-row))
           (actual-col (if col col current-col))
