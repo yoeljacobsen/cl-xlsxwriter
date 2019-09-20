@@ -6,5 +6,6 @@
            #:workbook-add-worksheet
            #:workbook-write-string
            #:workbook-write-number
+           #:worksheet-write
            #:workbook-close))
 

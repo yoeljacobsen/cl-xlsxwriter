@@ -12,6 +12,9 @@
 
 (defctype lxw-row :int32)
 (defctype lxw-col :int32)
+(defctype lxw-workbook :pointer)
+(defctype lxw-worksheet :pointer)
+(defctype lxw-format :pointer)
 
 (defcenum lxw-error
   :LXW-NO-ERROR
@@ -41,32 +44,45 @@
   :LXW-ERROR-WORKSHEET-MAX-NUMBER-URLS-EXCEEDED
   :LXW-ERROR-IMAGE-DIMENSIONS)
 
-;;; Functions
+;;; Functions - General
 
-(defcfun "workbook_new" :pointer (filename :string))
+(defcfun "workbook_new" lxw-workbook (filename :string))
 
-(defcfun "workbook_add_worksheet" :pointer
-  (workbook :pointer)
+(defcfun "workbook_add_worksheet" lxw-worksheet
+  (workbook lxw-workbook)
   (sheet-name :string))
 
 (defcfun "worksheet_write_string" lxw-error
-  (worksheet :pointer)
+  (worksheet lxw-worksheet)
   (row lxw-row)
   (col lxw-col)
   (string :string)
-  (format :pointer))
+  (format lxw-format))
 
 (defcfun "worksheet_write_number" lxw-error
-  (worksheet :pointer)
+  (worksheet lxw-worksheet)
   (row lxw-row)
   (col lxw-col)
   (double :double)
-  (format :pointer))
+  (format lxw-format))
 
 (defcfun "workbook_close" lxw-error
-  (workbook :pointer))
+  (workbook lxw-workbook))
+
+;;; functions -formatting
+
+(defcfun "workbook_add_format" lxw-format
+  (workbook lxw-workbook))
+
+(defcfun "format_set_bold" :void
+  (format lxw-format))
 
 ;;; Helper functions
+
+;;; Memorize current row and col and convert the lisp value to the correct  value
+;;; String -> String
+;;; Number -> DOUBLE-FLOAT
+;;; NIL -> ""
 
 (let ((current-row 0)
       (current-col 0))
@@ -79,6 +95,8 @@
              (worksheet-write-string worksheet actual-row actual-col value actual-format))
             ((numberp value)
              (worksheet-write-number worksheet actual-row actual-col (coerce value 'double-float) actual-format))
+            ((null value)
+             (worksheet-write-number worksheet actual-row actual-col "" actual-format))
         (t "Unsupported value type"))
       (setf current-row actual-row)
       (setf current-col (1+ actual-col)))))
@@ -94,7 +112,10 @@
 
 (defun test-helper (filename)
   (let* ((workbook (workbook-new filename))
-         (worksheet (workbook-add-worksheet workbook "sheet1")))
+         (worksheet (workbook-add-worksheet workbook "sheet1"))
+         (f1 (workbook-add-format workbook)))
+    (format-set-bold f1)
     (loop for val in '(1 "two" 3.0 "four" 5/6 "six")
-          do (worksheet-write worksheet val))
+          do (worksheet-write worksheet val :format f1))
     (workbook-close workbook)))
+
