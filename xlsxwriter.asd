@@ -8,5 +8,11 @@
   :depends-on (:cffi)
   :components ((:file "package")
                (:file "xlsxwriter")
+               (:file "types")
+               (:file "workbook")
+               (:file "worksheet")
+               (:file "format")
+               (:file "helpers")
+               (:file "tests")
                (:file "export")))
 
