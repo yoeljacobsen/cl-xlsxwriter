@@ -1,5 +1,9 @@
 (in-package #:xlsxwriter)
 
+(defcfun "format_set_font_size" :void
+  (format lxw-formaT)
+  (size :double))
+
 (defcfun "format_set_bold" :void
   (format lxw-format))
 
