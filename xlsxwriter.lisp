@@ -3,6 +3,7 @@
 ;;; Make sue libxlsxwriter is installed
 
 (define-foreign-library libxlsxwriter
+  (:darwin "libxlsxwriter.dylib")
   (:unix "libxlsxwriter.so")
   (t (:default "libxlsxwriter")))
 
